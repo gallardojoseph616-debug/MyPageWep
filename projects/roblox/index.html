@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Roblox Transfer Dashboard</title>
+
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              "rbx-bg": "#111216", // Main Dark background
+              "rbx-header": "#191B1D", // Top Bar
+              "rbx-card": "#232527", // Content Cards
+              "rbx-input": "rgba(0,0,0,0.5)", // Input fields
+              "rbx-div": "#393B3D", // Dividers/Strokes
+              "rbx-text": "#FFFFFF",
+              "rbx-gray": "#9CA3AF",
+              "rbx-btn": "#FFFFFF", // Secondary Buttons
+              "rbx-btn-dark": "#232527",
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- React & DOM -->
+    <script
+      crossorigin
+      src="https://unpkg.com/react@18/umd/react.development.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+    ></script>
+
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+      body {
+        background-color: #111216;
+        color: white;
+        font-family: "Inter", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      /* Custom Scrollbar to match Roblox usually hidden or thin */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #111216;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #5a5d61;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-corner {
+        background: transparent;
+      }
+
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Main Application Logic -->
+    <script type="text/babel" src="./main.js"></script>
+  </body>
+</html>
