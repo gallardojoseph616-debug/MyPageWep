@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transferencia Bancaria</title>
+
+    <!-- React & ReactDOM -->
+    <script
+      crossorigin
+      src="https://unpkg.com/react@18/umd/react.development.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+    ></script>
+
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Phosphor Icons (clean modern icons) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              pichincha: {
+                yellow: "#FFDD00", // Pichincha yellow is vibrant
+                blue: "#0F265C", // Deep navy blue
+                gray: "#F4F6F9", // Light background
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f4f6f9;
+      }
+      .fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-pichincha-gray min-h-screen flex items-center justify-center p-4"
+  >
+    <div id="root" class="w-full max-w-md"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+
+      function App() {
+        const [step, setStep] = useState(1);
+        const [isLoading, setIsLoading] = useState(false);
+        const [formData, setFormData] = useState({
+          accountId: "",
+          recipientName: "",
+          recipientBank: "",
+          amount: "",
+          concept: "",
+        });
+        const [transactionTime, setTransactionTime] = useState(null);
+
+        // Mock User Data (Only sender is mocked now)
+        const myAccount = "•••• •••• 8291";
+
+        const handleInputChange = (e) => {
+          const { name, value } = e.target;
+          setFormData((prev) => ({ ...prev, [name]: value }));
+        };
+
+        const goToStep2 = () => {
+          if (!formData.accountId)
+            return alert("Por favor ingrese una cuenta o cédula");
+          if (!formData.recipientName)
+            return alert("Por favor ingrese el nombre del beneficiario");
+          if (!formData.recipientBank)
+            return alert("Por favor ingrese el banco de destino");
+
+          setIsLoading(true);
+          setTimeout(() => {
+            setIsLoading(false);
+            setStep(2);
+          }, 2000); // Simulate network latency
+        };
+
+        const goToStep3 = () => {
+          if (!formData.amount) return alert("Ingrese un monto");
+          setIsLoading(true); // Simulate processing
+          setTimeout(() => {
+            setTransactionTime(new Date());
+            setIsLoading(false);
+            setStep(4); // Jump directly to receipt after processing
+          }, 2000);
+        };
+
+        const formatCurrency = (val) => {
+          if (!val) return "$0.00";
+          return new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+          }).format(val);
+        };
+
+        // Loading Spinner Component
+        if (isLoading) {
+          return (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center z-50 text-white">
+              <div className="w-12 h-12 border-4 border-pichincha-yellow border-t-transparent rounded-full animate-spin mb-4"></div>
+              <p className="font-medium text-lg tracking-wide">
+                {step === 1
+                  ? "Verificando datos..."
+                  : "Procesando transferencia..."}
+              </p>
+            </div>
+          );
+        }
+
+        return (
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 min-h-[600px] flex flex-col relative">
+            {/* Header */}
+            <div className="bg-pichincha-blue text-white p-4 flex items-center justify-between shadow-md z-10">
+              <div className="flex items-center gap-2">
+                {step > 1 && step < 4 && (
+                  <button
+                    onClick={() => setStep(step - 1)}
+                    className="hover:bg-white/10 p-1 rounded-full text-xl"
+                  >
+                    <i className="ph ph-arrow-left"></i>
+                  </button>
+                )}
+                <h1 className="font-semibold text-lg tracking-wide">
+                  {step === 4 ? "Comprobante" : "Transferir Dinero"}
+                </h1>
+              </div>
+              <div className="w-8 h-8 bg-pichincha-yellow rounded-full text-pichincha-blue flex items-center justify-center font-bold text-xs">
+                BP
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 p-6 flex flex-col fade-in">
+              {step === 1 && (
+                <div className="flex flex-col h-full justify-between">
+                  <div className="space-y-5 mt-2">
+                    <div className="text-center mb-6">
+                      <div className="w-16 h-16 bg-blue-50 text-pichincha-blue rounded-full mx-auto flex items-center justify-center text-3xl mb-3">
+                        <i className="ph ph-user-plus"></i>
+                      </div>
+                      <h2 className="text-xl font-bold text-gray-800">
+                        Datos del Beneficiario
+                      </h2>
+                      <p className="text-gray-500 text-sm mt-1">
+                        Ingresa los datos para la transferencia
+                      </p>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                          Número de Cuenta o Cédula
+                        </label>
+                        <input
+                          type="number"
+                          name="accountId"
+                          value={formData.accountId}
+                          onChange={handleInputChange}
+                          placeholder="Ej. 1720..."
+                          className="w-full text-lg p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pichincha-blue focus:border-pichincha-blue outline-none transition-all placeholder-gray-300 bg-gray-50"
+                          autoFocus
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                          Nombre del Beneficiario
+                        </label>
+                        <input
+                          type="text"
+                          name="recipientName"
+                          value={formData.recipientName}
+                          onChange={handleInputChange}
+                          placeholder="Ej. Juan Pérez"
+                          className="w-full text-lg p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pichincha-blue focus:border-pichincha-blue outline-none transition-all placeholder-gray-300 bg-gray-50 uppercase"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                          Banco de Destino
+                        </label>
+                        <input
+                          type="text"
+                          name="recipientBank"
+                          value={formData.recipientBank}
+                          onChange={handleInputChange}
+                          placeholder="Ej. Banco Guayaquil"
+                          className="w-full text-lg p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pichincha-blue focus:border-pichincha-blue outline-none transition-all placeholder-gray-300 bg-gray-50"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={goToStep2}
+                    className="w-full bg-pichincha-blue text-white font-semibold text-lg py-4 rounded-xl shadow-lg hover:shadow-xl active:scale-95 transition-all mt-8 flex items-center justify-center gap-2"
+                  >
+                    Continuar <i className="ph ph-arrow-right"></i>
+                  </button>
+                </div>
+              )}
+
+              {step === 2 && (
+                <div className="flex flex-col h-full justify-between">
+                  <div className="space-y-6">
+                    {/* Beneficiary Card */}
+                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-center gap-4">
+                      <div className="w-12 h-12 bg-pichincha-blue text-white rounded-full flex items-center justify-center text-xl font-bold uppercase">
+                        {formData.recipientName.charAt(0)}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900 uppercase">
+                          {formData.recipientName}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {formData.recipientBank} • Cuenta
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 pt-2">
+                      <div className="relative">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider absolute -top-2.5 left-3 bg-white px-1">
+                          Monto a Enviar
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-2xl font-light">
+                            $
+                          </span>
+                          <input
+                            type="number"
+                            name="amount"
+                            value={formData.amount}
+                            onChange={handleInputChange}
+                            placeholder="0.00"
+                            className="w-full text-3xl p-4 pl-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pichincha-blue focus:border-pichincha-blue outline-none transition-all font-bold text-gray-800"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="relative">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider absolute -top-2.5 left-3 bg-white px-1">
+                          Concepto (Opcional)
+                        </label>
+                        <textarea
+                          name="concept"
+                          value={formData.concept}
+                          onChange={handleInputChange}
+                          placeholder="Ej. Pago cena..."
+                          rows="2"
+                          className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pichincha-blue focus:border-pichincha-blue outline-none transition-all resize-none bg-white text-gray-700"
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={goToStep3}
+                    className="w-full bg-pichincha-yellow text-pichincha-blue font-bold text-lg py-4 rounded-xl shadow-md hover:shadow-lg active:scale-95 transition-all mt-8"
+                  >
+                    Realizar Transferencia
+                  </button>
+                </div>
+              )}
+
+              {step === 4 && (
+                <div className="flex flex-col h-full bg-gray-50 -m-6 p-6">
+                  <div className="text-center mb-6">
+                    <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full mx-auto flex items-center justify-center text-4xl mb-3 shadow-sm">
+                      <i className="ph-fill ph-check-circle"></i>
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      ¡Transferencia Exitosa!
+                    </h2>
+                    <p className="text-gray-500 text-sm">
+                      {transactionTime?.toLocaleDateString()} -{" "}
+                      {transactionTime?.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+
+                  {/* Receipt Ticket */}
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden relative">
+                    {/* Sawtooth border effect top */}
+                    <div className="absolute top-0 left-0 w-full h-2 bg-pichincha-blue"></div>
+
+                    <div className="p-6 space-y-6">
+                      <div className="flex flex-col items-center">
+                        <span className="text-gray-500 text-sm uppercase tracking-wider">
+                          Monto enviado
+                        </span>
+                        <span className="text-4xl font-bold text-gray-900 mt-1">
+                          {formatCurrency(formData.amount)}
+                        </span>
+                      </div>
+
+                      <div className="border-t border-dashed border-gray-200 my-4"></div>
+
+                      <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-4 text-sm">
+                        <div className="text-gray-500">De:</div>
+                        <div className="font-medium text-gray-900 text-right">
+                          <div>Mi Cuenta</div>
+                          <div className="text-xs text-gray-500">
+                            {myAccount}
+                          </div>
+                        </div>
+
+                        <div className="text-gray-500">Para:</div>
+                        <div className="font-medium text-gray-900 text-right">
+                          <div className="uppercase">
+                            {formData.recipientName}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Cuenta/CI: {formData.accountId}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {formData.recipientBank}
+                          </div>
+                        </div>
+
+                        <div className="text-gray-500">Concepto:</div>
+                        <div className="font-medium text-gray-900 text-right break-words">
+                          {formData.concept || "Sin concepto"}
+                        </div>
+
+                        <div className="text-gray-500">Ref:</div>
+                        <div className="font-medium text-gray-900 text-right font-mono text-xs">
+                          TX-{Math.floor(Math.random() * 1000000)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer Logo */}
+                    <div className="bg-gray-50 p-4 flex justify-center border-t border-gray-100">
+                      <span className="text-pichincha-blue font-bold tracking-widest text-xs uppercase">
+                        Banca Móvil
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-auto pt-6 space-y-3">
+                    <button className="w-full bg-white text-pichincha-blue border border-pichincha-blue font-semibold py-3.5 rounded-xl shadow-sm hover:bg-blue-50 transition-all flex items-center justify-center gap-2">
+                      <i className="ph ph-share-network text-xl"></i> Compartir
+                      Comprobante
+                    </button>
+                    <button
+                      onClick={() => {
+                        setFormData({
+                          accountId: "",
+                          recipientName: "",
+                          recipientBank: "",
+                          amount: "",
+                          concept: "",
+                        });
+                        setStep(1);
+                      }}
+                      className="w-full bg-pichincha-blue text-white font-semibold py-3.5 rounded-xl shadow hover:shadow-lg transition-all"
+                    >
+                      Finalizar
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
